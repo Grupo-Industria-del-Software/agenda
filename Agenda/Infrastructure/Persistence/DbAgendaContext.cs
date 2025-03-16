@@ -8,6 +8,7 @@ public class DbAgendaContext: DbContext
     public DbAgendaContext(DbContextOptions<DbAgendaContext> options) : base(options)
     {
     }
+    public DbSet<Domain.Entities.Type> Types { get; set; }
     
     public DbSet<User> Users { get; set; }
     
