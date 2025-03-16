@@ -1,15 +1,19 @@
 using API.Config;
+using Infrastructure.Configurations;
 using Infrastructure.Dependencies;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
 var dbConfig = new DbConfig();
 
 // Add services to the container.
 builder.Services.AddDbContext<DbAgendaContext>(options => options.UseSqlServer(dbConfig.ConnectionString));
 
+builder.Services.AddJwtConfiguration(builder.Configuration);
 builder.Services.AddInfrastructure();
 
 builder.Services.AddControllers();
@@ -28,6 +32,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
