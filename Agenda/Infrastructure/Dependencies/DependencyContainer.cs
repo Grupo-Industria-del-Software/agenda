@@ -8,6 +8,8 @@ using Infrastructure.Repositories;
 using Application.Interfaces.Auth;
 using Application.Interfaces.Jwt;
 using Application.Interfaces.Utils;
+using Application.Interfaces.Activities;
+using Application.Services.Activities;
 using Application.Services.Auth;
 using Application.Services.Utils;
 using Infrastructure.Repositories;
@@ -31,7 +33,11 @@ public static class DependencyContainer
         // Utils
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<IJwtService, JwtService>();
-        
+
+        // Activity
+        services.AddScoped<IActivityService, ActivityService>();
+        services.AddScoped<IActivityRepository, ActivityRepository>();
+
         return services;
     }
 }
