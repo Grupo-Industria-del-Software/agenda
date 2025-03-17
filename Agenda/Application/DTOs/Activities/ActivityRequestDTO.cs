@@ -2,8 +2,8 @@
 {
     public class ActivityRequestDTO
     {
-        public DateTime StartDateTime { get; set; }
-        public DateTime EndDateTime { get; set; }
+        public DateTime? StartDateTime { get; set; }
+        public DateTime? EndDateTime { get; set; }
         public int UserId { get; set; }
         public int TypeId { get; set; }
         public string Title { get; set; }

@@ -9,6 +9,6 @@ namespace Domain.AggregateRoots.Activities
         public string Description { get; set; }
         public DateTime? StartDateTime { get; set; }
         public DateTime? EndDateTime { get; set; }
-        public bool Finished { get; set; } = false;
+        public bool Finished { get; set; } = false; 
     }
 }

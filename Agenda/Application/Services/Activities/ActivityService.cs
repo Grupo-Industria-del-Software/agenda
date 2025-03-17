@@ -53,6 +53,7 @@ namespace Application.Services.Activities
                 }).ToList()
             });
         }
+
         public async Task<ActivityResponseDTO?> GetByIdAsync(int id)
         {
             var activity = await _activityRepository.GetByIdAsync(id);
@@ -88,19 +89,24 @@ namespace Application.Services.Activities
                 }).ToList()
             };
         }
+
         public async Task<ActivityResponseDTO> CreateAsync(ActivityRequestDTO dto)
         {
             var activity = new Activity
             {
-                StartDateTime = dto.StartDateTime,
-                EndDateTime = dto.EndDateTime,
+                StartDateTime = null,
+                EndDateTime = null,
                 Title = dto.Title,
                 Description = dto.Description,
                 UserId = dto.UserId,
                 TypeId = dto.TypeId,
+                Finished = false,
                 Tasks = dto.Tasks.Select(t => new Task
                 {
-                    Description = t.Description
+                    Description = t.Description,
+                    StartDateTime = null,
+                    EndDateTime = null,
+                    Finished = false
                 }).ToList()
             };
 
@@ -127,21 +133,23 @@ namespace Application.Services.Activities
                 }).ToList()
             };
         }
+
         public async Task<bool> UpdateAsync(int id, ActivityRequestDTO dto)
         {
             var activity = await _activityRepository.GetByIdAsync(id);
             if (activity == null) return false;
 
-            activity.StartDateTime = dto.StartDateTime;
-            activity.EndDateTime = dto.EndDateTime;
             activity.Title = dto.Title;
             activity.Description = dto.Description;
             activity.TypeId = dto.TypeId;
-            activity.Finished = dto.Finished;
+            
             activity.Tasks.Clear();
             activity.Tasks.AddRange(dto.Tasks.Select(t => new Task
             {
-                Description = t.Description
+                Description = t.Description,
+                StartDateTime = null,
+                EndDateTime = null,
+                Finished = false
             }));
 
             return await _activityRepository.UpdateAsync(activity);
@@ -160,7 +168,13 @@ namespace Application.Services.Activities
             var task = activity.Tasks.FirstOrDefault(t => t.Id == taskId);
             if (task == null || task.StartDateTime != null) return false;
 
-            task.StartDateTime = DateTime.UtcNow;
+            var now = DateTime.UtcNow;
+            if (activity.StartDateTime == null)
+            {
+                activity.StartDateTime = now;
+            }
+            task.StartDateTime = now;
+
             return await _activityRepository.UpdateAsync(activity);
         }
 
@@ -174,8 +188,16 @@ namespace Application.Services.Activities
 
             task.EndDateTime = DateTime.UtcNow;
             task.Finished = true;
+
+            if (activity.Tasks.All(t => t.Finished))
+            {
+                activity.Finished = true;
+                activity.EndDateTime = DateTime.UtcNow;
+            }
+
             return await _activityRepository.UpdateAsync(activity);
         }
+
         public async Task<bool> UpdateTaskAsync(int activityId, int taskId, TaskRequestDTO dto)
         {
             var activity = await _activityRepository.GetByIdAsync(activityId);
@@ -188,14 +210,18 @@ namespace Application.Services.Activities
 
             return await _activityRepository.UpdateAsync(activity);
         }
+
         public async Task<TaskResponseDTO> AddTaskToActivityAsync(int activityId, TaskRequestDTO dto)
         {
             var activity = await _activityRepository.GetByIdAsync(activityId);
             if (activity == null) throw new KeyNotFoundException("Actividad no encontrada");
 
-            var newTask = new Domain.AggregateRoots.Activities.Task
+            var newTask = new Task
             {
-                Description = dto.Description,         
+                Description = dto.Description,
+                StartDateTime = null,
+                EndDateTime = null,
+                Finished = false
             };
 
             activity.Tasks.Add(newTask);
@@ -203,7 +229,7 @@ namespace Application.Services.Activities
 
             var taskResponse = new TaskResponseDTO
             {
-                Id = newTask.Id, 
+                Id = newTask.Id,
                 ActivityId = newTask.ActivityId,
                 Description = newTask.Description,
                 StartDateTime = newTask.StartDateTime,
