@@ -1,10 +1,12 @@
 ﻿using Application.DTOs.Activities;
 using Application.Interfaces.Activities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.Activities
 {
         [ApiController]
+        [Authorize]
         [Route("api/activity")]
         public class ActivityController : ControllerBase
         {
