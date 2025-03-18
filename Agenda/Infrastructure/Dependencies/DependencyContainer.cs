@@ -12,7 +12,6 @@ using Application.Interfaces.Activities;
 using Application.Services.Activities;
 using Application.Services.Auth;
 using Application.Services.Utils;
-using Infrastructure.Repositories;
 using Infrastructure.Services.Jwt;
 using Microsoft.Extensions.DependencyInjection;
 
